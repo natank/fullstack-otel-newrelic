@@ -1,0 +1,15 @@
+FROM node:16.13.2
+
+WORKDIR /usr/src/app
+
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+COPY services/auth services/auth
+COPY services/shared services/shared
+
+WORKDIR /usr/src/app/services/auth
+
+EXPOSE 8080
+
+CMD ["yarn", "start:auth"]

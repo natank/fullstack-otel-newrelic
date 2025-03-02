@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  todo:
+    build: 
+      context: .
+      dockerfile: docker/dockerfile.todo-service
+    volumes:
+      - .:/usr/src/app:rw
+    ports:
+      - 8081:8080
+      - 9464:9464
+    environment:
+      - NODE_ENV=development
+      - OTEL_SERVICE_NAME=todo-service
+    depends_on:
+      - redis
+      - jaeger
+      - prometheus
+
+  auth:
+    build: 
+      context: .
+      dockerfile: docker/dockerfile.auth-service
+    volumes:
+      - .:/usr/src/app:rw
+    environment:
+      - NODE_ENV=development
+      - OTEL_SERVICE_NAME=auth-service
+    depends_on:
+      - redis
+      - jaeger
+      - prometheus
+    ports:
+      - "8080:8080"
+      - "9465:9464"
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true  # Enable OTLP collector
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "4317:4317"    # OTLP gRPC endpoint
+      - "4318:4318"    # OTLP HTTP endpoint
+
+  prometheus:
+      image: prom/prometheus
+      volumes:
+        - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      ports:
+        - "9090:9090"
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel/config.yaml
+    command: ["--config=/etc/otel/config.yaml"]
+    ports:
+      - "4319:4318"  # OTLP HTTP Receiver
+    depends_on:
+      - jaeger

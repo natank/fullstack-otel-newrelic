@@ -1,0 +1,36 @@
+{
+  "name": "opentelemetry-101",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/habmic/opentelemetry-101.git",
+  "author": "Michael Haberman <habmic@gmail.com",
+  "license": "MIT",
+  "scripts": {
+    "todo": "ts-node-dev services/todo/todo-service.ts",
+    "auth": "ts-node-dev services/auth/auth-service.ts",
+    "start:auth": "yarn auth",
+    "start:todo": "yarn todo"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.56.0",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.57.1",
+    "@opentelemetry/exporter-prometheus": "^0.57.1",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.57.1",
+    "@opentelemetry/instrumentation": "^0.57.1",
+    "@opentelemetry/instrumentation-express": "^0.47.0",
+    "@opentelemetry/instrumentation-http": "^0.57.1",
+    "@opentelemetry/sdk-metrics": "^1.30.1",
+    "@opentelemetry/sdk-node": "^0.57.1",
+    "axios": "^1.4.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "ioredis": "^5.3.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6"
+  }
+}
