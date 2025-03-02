@@ -1,39 +1,29 @@
-import { NodeSDK } from "@opentelemetry/sdk-node";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
+import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
 import { Resource } from "@opentelemetry/resources";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
-import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 
-const serviceName = process.env.OTEL_SERVICE_NAME || "unknown-service";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import process from "process";
 
-/**
- * Initializes OpenTelemetry tracing.
- */
-export function initializeTracing(): NodeSDK {
-  const traceExporter = new OTLPTraceExporter({
-    url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || "http://jaeger:4317",
-  });
+const provider = new NodeTracerProvider({
+  resource: new Resource({
+    [ATTR_SERVICE_NAME]: process.env.OTEL_SERVICE_NAME || "default-service",
+  }),
+  spanProcessors: [
+    new BatchSpanProcessor(
+      new OTLPTraceExporter({
+        url: "https://otlp.nr-data.net:4317",
+        headers: {
+          "api-key": process.env.NEW_RELIC_LICENSE_KEY || "",
+        },
+      })
+    ),
+  ],
+});
 
-  const resource = new Resource({
-    [ATTR_SERVICE_NAME]: serviceName,
-  });
+provider.register();
 
-  const sdk = new NodeSDK({
-    resource,
-    traceExporter,
-    instrumentations: [
-      getNodeAutoInstrumentations(),
-      new HttpInstrumentation(),
-    ],
-  });
+console.log("Tracing initialized with New Relic OTLP Exporter");
 
-  try {
-    sdk.start();
-    console.log("✅ Tracing initialized successfully.");
-  } catch (error) {
-    console.error("❌ Error initializing tracing:", error);
-  }
-
-  return sdk;
-}
+export default provider;
