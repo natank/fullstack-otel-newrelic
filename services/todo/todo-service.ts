@@ -4,10 +4,6 @@ import express, { Request, Response } from "express";
 import axios from "axios";
 import { context, SpanStatusCode, trace } from "@opentelemetry/api";
 import Redis from "ioredis";
-import {
-  countRequestsMiddleware,
-  requestDurationMiddleware,
-} from "../shared/middleware";
 
 const tracer = trace.getTracer("todo-service");
 
@@ -28,10 +24,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-// Apply OpenTelemetry middleware
-app.use(countRequestsMiddleware);
-app.use(requestDurationMiddleware);
 
 app.get("/todos", async (req: Request, res: Response) => {
   // Retrieve the active OpenTelemetry span
