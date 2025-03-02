@@ -1,11 +1,11 @@
-import { initializeTracing } from "./tracer";
-import { initializeMetrics } from "./metrics";
+import provider from "./tracer"; // Import the tracing provider
+import meterProvider from "./metrics"; // Import the meter provider
 
 // Initialize tracing
-const sdk = initializeTracing();
+const sdk = provider;
 
 // Initialize metrics and export the meter
-export const meter = initializeMetrics();
+export const meter = meterProvider;
 
 // Handle shutdown on process termination
 process.on("SIGTERM", async () => {
